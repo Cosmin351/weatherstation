@@ -28,8 +28,8 @@
 MCUFRIEND_kbv tft;
 DHT dht(DHT11PIN, DHT11);
 
-const char* SSIDPARAM = "gioconda";//"DIGI-02225969";
-const char* PASSPARAM = "cristian";//"6ht5Qeee";
+const char* SSIDPARAM = "DIGI-02225969";//"DIGI-02225969";
+const char* PASSPARAM = "6ht5Qeee";//"6ht5Qeee";
 const char* ntpServer = "pool.ntp.org";
 
 char hournow[3];
@@ -43,7 +43,7 @@ int CityTempMin = 0;
 
 String openWeatherMapApiKey = "2693de7ea633224657701690bcbe4f42";
 String hostname = "ESP32 Termometru";
-String City = "Bucharest";
+String City = "Craiova";
 String countryCode = "RO";
 String jsonBuffer;
 String CityWeather;
@@ -67,13 +67,14 @@ void connectToWifi();
 void displayERROR();
 String httpGETRequest(const char* serverName);
 void getWeather();
+void PrintDay();
 
 void setup() {
   Serial.begin(115200);
-  initWIFI();
-  Serial.println("Wifi inited.");
   initTFT();
   Serial.println("TFT inited.");
+  initWIFI();
+  Serial.println("Wifi inited.");
   dht.begin();
   getWeather();
   LastMillis = millis();
@@ -155,12 +156,20 @@ void displayERROR(){
 void DisplayConnnectInfo(int WhatToPrint){
   tft.fillScreen(BLACK);
   if(WhatToPrint == 1){
-    tft.setCursor(25*ScreenWidth/100, 45*ScreenHeight/100);
-    tft.println("Connecting to wifi...");
+    tft.setTextSize(5);
+    tft.setCursor(5*ScreenWidth/100, 30*ScreenHeight/100);
+    tft.println("Connecting");
+    tft.setCursor(40*ScreenWidth/100, 50*ScreenHeight/100);
+    tft.println("to");
+    tft.setCursor(33*ScreenWidth/100, 70*ScreenHeight/100);
+    tft.println("wifi");
   }
   if(WhatToPrint == 2){
-    tft.setCursor(25*ScreenWidth/100, 45*ScreenHeight/100);
-    tft.println("Connected successfully.");
+    tft.setTextSize(4);
+    tft.setCursor(15*ScreenWidth/100, 30*ScreenHeight/100);
+    tft.println("Connected");
+    tft.setCursor(5*ScreenWidth/100, 55*ScreenHeight/100);
+    tft.println("successfully");
   }
   if(WhatToPrint == 3){
     int tempT = dht.readTemperature();
@@ -181,7 +190,7 @@ void DisplayConnnectInfo(int WhatToPrint){
 
   }
   if(WhatToPrint == 4){
-    tft.setCursor(10*ScreenWidth/100, 0);
+    tft.setCursor(ScreenWidth/2 - (strlen(City.c_str())/2 + 0.5 * (strlen(City.c_str())%2)) * 10 * ScreenWidth/100, 0);
     tft.setTextSize(5);
     tft.println(City);
     tft.setTextSize(8);
@@ -196,7 +205,7 @@ void DisplayConnnectInfo(int WhatToPrint){
     tft.print("%");
   }
   if(WhatToPrint == 5){
-    tft.setCursor(35*ScreenWidth/100, 0);
+    tft.setCursor(ScreenWidth/2 - 1.5 * 10*ScreenWidth/100, 0);
     tft.setTextSize(5);
     tft.println("Ora:");
     tft.setCursor(5*ScreenWidth/100, 30*ScreenHeight/100);
@@ -206,7 +215,7 @@ void DisplayConnnectInfo(int WhatToPrint){
     tft.print(Lastminute);
     tft.setCursor(20*ScreenWidth/100, 75*ScreenHeight/100);
     tft.setTextSize(6);
-    tft.println(day);
+    PrintDay();
   }
   if(WhatToPrint == 6){
     tft.setCursor(20*ScreenWidth/100, 0);
@@ -226,6 +235,52 @@ void DisplayConnnectInfo(int WhatToPrint){
     tft.setCursor(30*ScreenWidth/100, 75*ScreenHeight/100);
     //tft.println(CityWeather);
   }
+}
+
+void PrintDay(){
+  int n_day = 0;
+  String days[7] = {"Monday", "Tuesday", "Wednesday", "Thrusday", "Friday", "Saturday", "Sunday"};
+  String RoDay;
+  for(int i=0; i<7; i++){
+    if(strcmp(day, days[i].c_str()) == 0){
+      n_day = i+1;
+    }
+  }
+  if(n_day != 0){
+    switch(n_day){
+      case 1:{
+        RoDay = "Luni";
+        break;
+        }
+      case 2:{
+        RoDay = "Marti";
+        break;
+        }
+      case 3:{
+        RoDay = "Miercuri";
+        break;
+        }
+      case 4:{
+        RoDay = "Joi";
+        break;
+        }
+      case 5:{
+        RoDay = "Vineri";
+        break;
+        }
+      case 6:{
+        RoDay = "Sambata";
+        break;
+        }
+      case 7:{
+        RoDay = "Duminica";
+        break;
+        }
+    }
+    tft.setCursor(ScreenWidth/2 - (strlen(RoDay.c_str())/2 + 0.25 * (strlen(RoDay.c_str())%2) -  0.5 * ((strlen(RoDay.c_str())+1)%2)) * 12*ScreenWidth/100, 75*ScreenHeight/100);
+    tft.println(RoDay);
+  }
+  // Monday, tuesday, wednesday, thrusday, friday, saturday, sunday
 }
 
 void connectToWifi(){
